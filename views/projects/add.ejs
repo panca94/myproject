@@ -1,0 +1,82 @@
+<%- include('../partials/header') %>
+
+<h1>Tambah Proyek Baru</h1>
+
+<form action="/projects/add" method="POST">
+    <div class="mb-3">
+        <label for="projectName" class="form-label">Nama Proyek</label>
+        <input type="text" class="form-control" id="projectName" name="projectName" required>
+    </div>
+    
+    <div class="mb-3">
+        <label for="customerId" class="form-label">Pelanggan</label>
+        <select class="form-select" id="customerId" name="customerId" required>
+            <option value="">-- Pilih Pelanggan --</option>
+            <% customers.forEach(customer => { %>
+                <option value="<%= customer.id %>"><%= customer.name %></option>
+            <% }) %>
+        </select>
+    </div>
+
+    <!-- Logic untuk menampilkan pilihan Account Manager berdasarkan role -->
+    <% if (user.role === 'sales') { %>
+        <!-- Jika Sales, sembunyikan input dan kirim ID user secara tersembunyi -->
+        <input type="hidden" name="userId" value="<%= user.id %>">
+        <div class="mb-3">
+            <label for="userId" class="form-label">Account Manager</label>
+            <input type="text" class="form-control" value="<%= user.username %>" readonly>
+        </div>
+    <% } else { %>
+        <!-- Jika Admin atau Manager, tampilkan dropdown untuk memilih Account Manager -->
+        <div class="mb-3">
+            <label for="userId" class="form-label">Account Manager</label>
+            <select class="form-select" id="userId" name="userId" required>
+                <option value="">-- Pilih Account Manager --</option>
+                <% users.forEach(user_item => { %>
+                    <option value="<%= user_item.id %>"><%= user_item.username %></option>
+                <% }) %>
+            </select>
+        </div>
+    <% } %>
+
+    <div class="mb-3">
+        <label for="amount" class="form-label">Nilai Proyek (Rp)</label>
+        <input type="number" class="form-control" id="amount" name="amount">
+    </div>
+    
+    <div class="mb-3">
+        <label for="projectDate" class="form-label">Tanggal Proyek</label>
+        <input type="date" class="form-control" id="projectDate" name="projectDate">
+    </div>
+    
+    <div class="mb-3">
+        <label for="status" class="form-label">Status</label>
+        <select class="form-select" id="status" name="status">
+            <option value="Budgeting">Budgeting</option>
+            <option value="On Progress" selected>On Progress</option>
+            <option value="Won">Won</option>
+            <option value="Lost">Lost</option>
+            <option value="Re-Tender">Re-Tender</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="update_status" class="form-label">Update</label>
+        <select class="form-select" id="update_status" name="update_status">
+            <option value="">-- Pilih Status Update --</option>
+            <option value="Proposal Submit">Proposal Submit</option>
+            <option value="Eng Calculate">Eng Calculate</option>
+            <option value="Won">Won</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="challenge" class="form-label">Challenge</label>
+        <textarea class="form-control" id="challenge" name="challenge" rows="3"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Simpan</button>
+    <a href="/projects" class="btn btn-secondary">Batal</a>
+</form>
+
+<%- include('../partials/footer') %>

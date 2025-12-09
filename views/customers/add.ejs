@@ -1,0 +1,35 @@
+<%- include('../partials/header') %>
+
+<h1>Tambah Pelanggan Baru</h1>
+
+<form action="/customers/add" method="POST">
+    <div class="mb-3">
+        <label for="name" class="form-label">Nama Pelanggan</label>
+        <input type="text" class="form-control" id="name" name="name" required>
+    </div>
+    
+    <!-- Logic untuk menampilkan pilihan Sales berdasarkan role -->
+    <% if (user.role === 'admin' || user.role === 'manager') { %>
+        <!-- Jika Admin atau Manager, tampilkan dropdown untuk memilih Sales -->
+        <div class="mb-3">
+            <label for="userId" class="form-label">Ditangani oleh (Sales)</label>
+            <select class="form-select" id="userId" name="userId" required>
+                <% salesUsers.forEach(sales => { %>
+                    <option value="<%= sales.id %>"><%= sales.username %></option>
+                <% }) %>
+            </select>
+        </div>
+    <% } else { %>
+        <!-- Jika Sales, sembunyikan input dan kirim ID user secara tersembunyi -->
+        <input type="hidden" name="userId" value="<%= user.id %>">
+        <div class="mb-3">
+            <label for="userId" class="form-label">Ditangani oleh (Sales)</label>
+            <input type="text" class="form-control" value="<%= user.username %>" readonly>
+        </div>
+    <% } %>
+
+    <button type="submit" class="btn btn-primary">Simpan</button>
+    <a href="/customers" class="btn btn-secondary">Batal</a>
+</form>
+
+<%- include('../partials/footer') %>

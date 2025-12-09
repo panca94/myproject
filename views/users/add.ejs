@@ -1,0 +1,26 @@
+<%- include('../partials/header') %>
+
+<h1>Tambah Pengguna Baru</h1>
+
+<form action="/users/add" method="POST">
+    <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+    </div>
+    <div class="mb-3">
+        <label for="role" class="form-label">Role</label>
+        <select class="form-select" id="role" name="role" required>
+            <option value="sales">Sales</option>
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Simpan</button>
+    <a href="/users" class="btn btn-secondary">Batal</a>
+</form>
+
+<%- include('../partials/footer') %>

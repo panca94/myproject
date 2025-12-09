@@ -1,0 +1,69 @@
+<%- include('../partials/header') %>
+
+<h1>Edit Proyek</h1>
+
+<form action="/projects/edit/<%= project.id %>?_method=PUT" method="POST">
+    <div class="mb-3">
+        <label for="projectName" class="form-label">Nama Proyek</label>
+        <input type="text" class="form-control" id="projectName" name="projectName" value="<%= project.projectName %>" required>
+    </div>
+    <div class="mb-3">
+        <label for="customerId" class="form-label">Pelanggan</label>
+        <select class="form-select" id="customerId" name="customerId" required>
+            <option value="">-- Pilih Pelanggan --</option>
+            <% customers.forEach(customer => { %>
+                <option value="<%= customer.id %>" <%= (project.customerId === customer.id) ? 'selected' : '' %>><%= customer.name %></option>
+            <% }) %>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="userId" class="form-label">Account Manager</label>
+        <% if (user.role === 'sales') { %>
+            <input type="hidden" name="userId" value="<%= project.userId %>">
+            <input type="text" class="form-control" value="<%= project.accountManager.username %>" readonly>
+        <% } else { %>
+            <select class="form-select" id="userId" name="userId" required>
+                <option value="">-- Pilih Account Manager --</option>
+                <% users.forEach(user_item => { %>
+                    <option value="<%= user_item.id %>" <%= (project.userId === user_item.id) ? 'selected' : '' %>><%= user_item.username %></option>
+                <% }) %>
+            </select>
+        <% } %>
+    </div>
+    <div class="mb-3">
+        <label for="amount" class="form-label">Nilai Proyek (Rp)</label>
+        <input type="number" class="form-control" id="amount" name="amount" value="<%= project.amount %>">
+    </div>
+    <div class="mb-3">
+        <label for="projectDate" class="form-label">Tanggal Proyek</label>
+        <% const date = new Date(project.projectDate); const formattedDate = date.toISOString().split('T')[0]; %>
+        <input type="date" class="form-control" id="projectDate" name="projectDate" value="<%= formattedDate %>">
+    </div>
+    <div class="mb-3">
+        <label for="status" class="form-label">Status</label>
+        <select class="form-select" id="status" name="status">
+            <option value="Budgeting" <%= (project.status === 'Budgeting') ? 'selected' : '' %>>Budgeting</option>
+            <option value="On Progress" <%= (project.status === 'On Progress') ? 'selected' : '' %>>On Progress</option>
+            <option value="Won" <%= (project.status === 'Won') ? 'selected' : '' %>>Won</option>
+            <option value="Lost" <%= (project.status === 'Lost') ? 'selected' : '' %>>Lost</option>
+            <option value="Re-Tender" <%= (project.status === 'Re-Tender') ? 'selected' : '' %>>Re-Tender</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="update_status" class="form-label">Update</label>
+        <select class="form-select" id="update_status" name="update_status">
+            <option value="">-- Pilih Status Update --</option>
+            <option value="Proposal Submit" <%= (project.update_status === 'Proposal Submit') ? 'selected' : '' %>>Proposal Submit</option>
+            <option value="Eng Calculate" <%= (project.update_status === 'Eng Calculate') ? 'selected' : '' %>>Eng Calculate</option>
+            <option value="Won" <%= (project.update_status === 'Won') ? 'selected' : '' %>>Won</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="challenge" class="form-label">Challenge</label>
+        <textarea class="form-control" id="challenge" name="challenge" rows="3"><%= project.challenge %></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Update</button>
+    <a href="/projects" class="btn btn-secondary">Batal</a>
+</form>
+
+<%- include('../partials/footer') %>
