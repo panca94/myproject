@@ -1,27 +1,44 @@
 const { Customer, User } = require('../models');
+const { Op } = require('sequelize');
 
-exports.showCustomers = async (req, res) => {
+exports.list = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 20;
     const offset = (page - 1) * limit;
 
-    const { count, rows: customers } = await Customer.findAndCountAll({
-      offset,
+    const search = req.query.search || "";
+
+    const where = search
+      ? {
+          [Op.or]: [
+            { name: { [Op.like]: `%${search}%` } },
+            { email: { [Op.like]: `%${search}%` } },
+            { phone: { [Op.like]: `%${search}%` } },
+            { address: { [Op.like]: `%${search}%` } },
+            { note: { [Op.like]: `%${search}%` } },
+          ],
+        }
+      : {};
+
+    const { rows: customers, count } = await Customer.findAndCountAll({
+      where,
       limit,
+      offset,
+      order: [['id', 'DESC']],
       include: [{ model: User, as: 'sales' }],
-      order: [['id', 'ASC']]
     });
+
+    const totalPages = Math.ceil(count / limit);
 
     res.render('customers/list', {
       customers,
       currentPage: page,
-      totalPages: Math.ceil(count / limit)
+      totalPages,
+      search,
     });
-
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Error loading customers");
+    res.status(500).send(err.message);
   }
 };
 
@@ -30,7 +47,7 @@ exports.addForm = async (req, res) => {
   res.render('customers/add', { users });
 };
 
-exports.addCustomer = async (req, res) => {
+exports.add = async (req, res) => {
   await Customer.create(req.body);
   res.redirect('/customers');
 };
@@ -41,12 +58,12 @@ exports.editForm = async (req, res) => {
   res.render('customers/edit', { customer, users });
 };
 
-exports.updateCustomer = async (req, res) => {
+exports.update = async (req, res) => {
   await Customer.update(req.body, { where: { id: req.params.id } });
   res.redirect('/customers');
 };
 
-exports.deleteCustomer = async (req, res) => {
+exports.delete = async (req, res) => {
   await Customer.destroy({ where: { id: req.params.id } });
   res.redirect('/customers');
 };
