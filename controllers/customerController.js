@@ -1,133 +1,69 @@
-const db = require('../models');
+const { Customer, User } = require('../models');
+const { Op } = require('sequelize');
 
-// Tampilkan daftar customer dengan pagination
-exports.showCustomers = async (req, res) => {
+exports.list = async (req, res) => {
   try {
-    const loggedInUser = req.session.user;
-    let whereClause = {};
-
-    if (loggedInUser.role === 'sales') {
-      whereClause.userId = loggedInUser.id;
-    }
-
     const page = parseInt(req.query.page) || 1;
-    const limit = 10;
+    const limit = 20;
     const offset = (page - 1) * limit;
-    
-    const data = await db.Customer.findAndCountAll({
-      where: whereClause,
-      include: [{ model: db.User, as: 'sales', attributes: ['username'] }],
-      order: [['id', 'ASC']],
-      limit: limit,
-      offset: offset
+
+    const search = req.query.search || "";
+
+    const where = search
+      ? {
+          [Op.or]: [
+            { name: { [Op.like]: `%${search}%` } },
+            { email: { [Op.like]: `%${search}%` } },
+            { phone: { [Op.like]: `%${search}%` } },
+            { address: { [Op.like]: `%${search}%` } },
+            { note: { [Op.like]: `%${search}%` } },
+          ],
+        }
+      : {};
+
+    const { rows: customers, count } = await Customer.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order: [['id', 'DESC']],
+      include: [{ model: User, as: 'sales' }],
     });
 
-    const customers = data.rows;
-    const totalCustomers = data.count;
-    const totalPages = Math.ceil(totalCustomers / limit);
+    const totalPages = Math.ceil(count / limit);
 
-    // Kirim variabel currentPage ke view
-    res.render('customers/list', { 
-      customers, 
-      currentPage: page, 
-      totalPages, 
-      totalCustomers,
-      user: req.session.user 
+    res.render('customers/list', {
+      customers,
+      currentPage: page,
+      totalPages,
+      search,
     });
   } catch (err) {
     res.status(500).send(err.message);
   }
 };
 
-// Tampilkan form tambah customer
-exports.showAddCustomerForm = async (req, res) => {
-  try {
-    const loggedInUser = req.session.user;
-    let salesUsers = [];
-
-    if (loggedInUser.role === 'admin' || loggedInUser.role === 'manager') {
-      salesUsers = await db.User.findAll({
-        where: { role: 'sales' },
-        attributes: ['id', 'username']
-      });
-    }
-    
-    res.render('customers/add', { salesUsers, user: req.session.user });
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
+exports.addForm = async (req, res) => {
+  const users = await User.findAll();
+  res.render('customers/add', { users });
 };
 
-// Proses tambah customer
-exports.addCustomer = async (req, res) => {
-  try {
-    const loggedInUser = req.session.user;
-    const customerData = { ...req.body };
-
-    if (loggedInUser.role === 'sales') {
-      customerData.userId = loggedInUser.id;
-    }
-    
-    await db.Customer.create(customerData);
-    res.redirect('/customers');
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
+exports.add = async (req, res) => {
+  await Customer.create(req.body);
+  res.redirect('/customers');
 };
 
-// Tampilkan form edit customer
-exports.showEditCustomerForm = async (req, res) => {
-  try {
-    const customer = await db.Customer.findByPk(req.params.id, {
-      include: [{ model: db.User, as: 'sales', attributes: ['id', 'username'] }]
-    });
-    if (!customer) {
-      return res.status(404).send('Customer not found');
-    }
-
-    const loggedInUser = req.session.user;
-    let salesUsers = [];
-
-    if (loggedInUser.role === 'admin' || loggedInUser.role === 'manager') {
-      salesUsers = await db.User.findAll({
-        where: { role: 'sales' },
-        attributes: ['id', 'username']
-      });
-    }
-
-    res.render('customers/edit', { customer, salesUsers, user: req.session.user });
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
+exports.editForm = async (req, res) => {
+  const customer = await Customer.findByPk(req.params.id);
+  const users = await User.findAll();
+  res.render('customers/edit', { customer, users });
 };
 
-// Proses update customer
-exports.updateCustomer = async (req, res) => {
-  try {
-    const loggedInUser = req.session.user;
-    const customerData = { ...req.body };
-
-    if (loggedInUser.role === 'sales') {
-      delete customerData.userId;
-    }
-
-    await db.Customer.update(customerData, {
-      where: { id: req.params.id }
-    });
-    res.redirect('/customers');
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
+exports.update = async (req, res) => {
+  await Customer.update(req.body, { where: { id: req.params.id } });
+  res.redirect('/customers');
 };
 
-// Hapus customer
-exports.deleteCustomer = async (req, res) => {
-  try {
-    await db.Customer.destroy({
-      where: { id: req.params.id }
-    });
-    res.redirect('/customers');
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
+exports.delete = async (req, res) => {
+  await Customer.destroy({ where: { id: req.params.id } });
+  res.redirect('/customers');
 };

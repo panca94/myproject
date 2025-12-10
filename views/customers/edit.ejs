@@ -3,30 +3,44 @@
 <h1>Edit Pelanggan</h1>
 
 <form action="/customers/edit/<%= customer.id %>?_method=PUT" method="POST">
-    <div class="mb-3">
-        <label for="name" class="form-label">Nama Pelanggan</label>
-        <input type="text" class="form-control" id="name" name="name" value="<%= customer.name %>" required>
-    </div>
-    
-    <% if (user.role === 'admin' || user.role === 'manager') { %>
-        <div class="mb-3">
-            <label for="userId" class="form-label">Ditangani oleh (Sales)</label>
-            <select class="form-select" id="userId" name="userId" required>
-                <% salesUsers.forEach(sales => { %>
-                    <option value="<%= sales.id %>" <%= (customer.userId === sales.id) ? 'selected' : '' %>><%= sales.username %></option>
-                <% }) %>
-            </select>
-        </div>
-    <% } else { %>
-        <div class="mb-3">
-            <label for="userId" class="form-label">Ditangani oleh (Sales)</label>
-            <input type="text" class="form-control" value="<%= customer.sales.username %>" readonly>
-            <input type="hidden" name="userId" value="<%= customer.userId %>">
-        </div>
-    <% } %>
 
-    <button type="submit" class="btn btn-primary">Update</button>
-    <a href="/customers" class="btn btn-secondary">Batal</a>
+    <div class="mb-3">
+        <label>Nama</label>
+        <input type="text" class="form-control" name="name" value="<%= customer.name %>" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Alamat</label>
+        <input type="text" class="form-control" name="address" value="<%= customer.address %>">
+    </div>
+
+    <div class="mb-3">
+        <label>Email</label>
+        <input type="email" class="form-control" name="email" value="<%= customer.email %>">
+    </div>
+
+    <div class="mb-3">
+        <label>Phone</label>
+        <input type="text" class="form-control" name="phone" value="<%= customer.phone %>">
+    </div>
+
+    <div class="mb-3">
+        <label>Sales</label>
+        <select class="form-control" name="userId">
+            <% users.forEach(u => { %>
+                <option value="<%= u.id %>" <%= customer.userId === u.id ? 'selected' : '' %>>
+                    <%= u.username %>
+                </option>
+            <% }) %>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label>Keterangan</label>
+        <textarea class="form-control" name="description"><%= customer.description %></textarea>
+    </div>
+
+    <button class="btn btn-primary">Update</button>
 </form>
 
 <%- include('../partials/footer') %>
