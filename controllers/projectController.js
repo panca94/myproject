@@ -26,6 +26,8 @@ exports.showProjects = async (req, res) => {
         [Op.or]: [
           { projectName: { [Op.like]: `%${search}%` } },
           { status: { [Op.like]: `%${search}%` } },
+          { update_status: { [Op.like]: `%${search}%` } },
+          { challenge: { [Op.like]: `%${search}%` } },    
           db.Sequelize.where(db.Sequelize.col('customer.name'), { [Op.like]: `%${search}%` }),
           db.Sequelize.where(db.Sequelize.col('accountManager.username'), { [Op.like]: `%${search}%` })
         ]
@@ -57,6 +59,33 @@ exports.showProjects = async (req, res) => {
       return total + amount;
     }, 0);
     // --- AKHIR LOGIKA ---
+    // --- AKHIR LOGIKA ---
+
+    // Hitung Top 5 sales berdasarkan total nilai project dengan status 'Won'
+    // Hanya lakukan query ini untuk user dengan role admin atau manager
+    let topSales = [];
+    if (loggedInUser && (String(loggedInUser.role).toLowerCase() === 'admin' || String(loggedInUser.role).toLowerCase() === 'manager')) {
+      // Gunakan agregasi di model Project lalu gabungkan ke User untuk menghindari masalah alias kolom
+      const projectAgg = await db.Project.findAll({
+        where: { status: 'Won' },
+        attributes: [
+          'userId',
+          [db.Sequelize.fn('SUM', db.Sequelize.literal('`Project`.`amount`')), 'totalValue'],
+          [db.Sequelize.fn('COUNT', db.Sequelize.literal('`Project`.`id`')), 'wonCount']
+        ],
+        group: ['userId'],
+        order: [[db.Sequelize.literal('totalValue'), 'DESC']],
+        limit: 5,
+        include: [{ model: db.User, as: 'accountManager', attributes: ['id', 'username'] }]
+      });
+
+      topSales = projectAgg.map(p => ({
+        id: p.userId,
+        username: p.accountManager ? p.accountManager.username : 'Unknown',
+        totalValue: p.get ? Number(p.get('totalValue')) : Number(p.dataValues.totalValue || 0),
+        wonCount: p.get ? Number(p.get('wonCount')) : Number(p.dataValues.wonCount || 0)
+      }));
+    }
 
     // Kirim semua data ke view
     res.render('projects/list', {
@@ -66,7 +95,8 @@ exports.showProjects = async (req, res) => {
       totalValue, // <-- INI ADALAH YANG PENTING
       totalProjects,
       user: req.session.user,
-      search
+      search,
+      topSales
     });
   } catch (err) {
     res.status(500).send(err.message);
@@ -89,8 +119,12 @@ exports.showAddProjectForm = async (req, res) => {
     } else {
       users = await db.User.findAll({ attributes: ['id', 'username'] });
     }
-    
-    customers = await db.Customer.findAll({ attributes: ['id', 'name'] });
+    // Jika user adalah sales, tampilkan hanya customer yang di-assign ke sales tersebut
+    // Ambil salesId juga untuk safety, lalu pastikan filter diterapkan
+    customers = await db.Customer.findAll({ attributes: ['id', 'name', 'salesId'] });
+    if (loggedInUser.role === 'sales') {
+      customers = customers.filter(c => c.salesId === loggedInUser.id);
+    }
 
     res.render('projects/add', { users, customers, user: req.session.user });
   } catch (err) {
@@ -100,6 +134,27 @@ exports.showAddProjectForm = async (req, res) => {
 
 exports.addProject = async (req, res) => {
   try {
+    const loggedInUser = req.session.user;
+
+    console.log('DEBUG addProject - loggedInUser:', loggedInUser);
+    console.log('DEBUG addProject - req.body:', req.body);
+
+    // Jika user adalah sales, pastikan customer yang dipilih memang milik sales tersebut
+    if (loggedInUser && String(loggedInUser.role).toLowerCase() === 'sales') {
+      const customerId = req.body.customerId || req.body.customer;
+      const customer = await db.Customer.findByPk(customerId);
+      console.log('DEBUG addProject - found customer:', customer && { id: customer.id, salesId: customer.salesId });
+      if (!customer) {
+        return res.status(400).send('Customer tidak ditemukan');
+      }
+      if (Number(customer.salesId) !== Number(loggedInUser.id)) {
+        console.log(`DEBUG addProject - sales mismatch: customer.salesId=${customer.salesId} loggedInUser.id=${loggedInUser.id}`);
+        return res.status(403).send('Anda tidak memiliki hak untuk menambahkan project ke customer ini');
+      }
+      // Pastikan juga userId pada project adalah yang login (jika form mencoba set userId berbeda)
+      req.body.userId = loggedInUser.id;
+    }
+
     await db.Project.create(req.body);
     res.redirect('/projects');
   } catch (err) {
@@ -112,14 +167,25 @@ exports.showEditProjectForm = async (req, res) => {
     const project = await db.Project.findByPk(req.params.id, {
       include: [
         { model: db.User, as: 'accountManager', attributes: ['id', 'username'] },
-        { model: db.Customer, as: 'customer', attributes: ['id', 'name'] }
+        { model: db.Customer, as: 'customer', attributes: ['id', 'name', 'salesId'] }
       ]
     });
     const users = await db.User.findAll({ attributes: ['id', 'username'] });
-    const customers = await db.Customer.findAll({ attributes: ['id', 'name'] });
+    // pastikan customers yang ditampilkan di edit juga sesuai hak akses sales
+    const loggedInUser = req.session.user;
+    let customers = await db.Customer.findAll({ attributes: ['id', 'name', 'salesId'] });
+    if (loggedInUser && loggedInUser.role === 'sales') {
+      customers = customers.filter(c => c.salesId === loggedInUser.id);
+    }
 
     if (!project) {
       return res.status(404).send('Project not found');
+    }
+    // Jika user adalah sales, pastikan project yang akan diedit memiliki customer yang juga milik sales tersebut
+    if (loggedInUser && loggedInUser.role === 'sales') {
+      if (!project.customer || project.customer.salesId !== loggedInUser.id) {
+        return res.status(403).send('Forbidden: Anda tidak dapat mengedit project ini');
+      }
     }
     res.render('projects/edit', { project, users, customers, user: req.session.user });
   } catch (err) {
@@ -129,6 +195,21 @@ exports.showEditProjectForm = async (req, res) => {
 
 exports.updateProject = async (req, res) => {
   try {
+    const loggedInUser = req.session.user;
+    // Jika sales sedang update, pastikan mereka tidak memindahkan project ke customer milik sales lain
+    if (loggedInUser && loggedInUser.role === 'sales') {
+      const customerId = req.body.customerId || req.body.customer;
+      const customer = await db.Customer.findByPk(customerId);
+      if (!customer) {
+        return res.status(400).send('Customer tidak ditemukan');
+      }
+      if (customer.salesId !== loggedInUser.id) {
+        return res.status(403).send('Anda tidak memiliki hak untuk memindahkan project ke customer ini');
+      }
+      // pastikan userId tetap ID yang login
+      req.body.userId = loggedInUser.id;
+    }
+
     await db.Project.update(req.body, {
       where: { id: req.params.id }
     });

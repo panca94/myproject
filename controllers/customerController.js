@@ -17,6 +17,7 @@ exports.list = async (req, res) => {
             { phone: { [Op.like]: `%${search}%` } },
             { address: { [Op.like]: `%${search}%` } },
             { note: { [Op.like]: `%${search}%` } },
+            { '$sales.username$': { [Op.like]: `%${search}%` } },
           ],
         }
       : {};
