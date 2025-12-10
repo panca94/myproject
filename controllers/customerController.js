@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 exports.list = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 20;
+    const limit = 10;
     const offset = (page - 1) * limit;
 
     const search = req.query.search || "";
