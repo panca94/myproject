@@ -5,6 +5,14 @@
     <a href="/projects/add" class="btn btn-success">+ Tambah Proyek</a>
 </div>
 
+<!-- SEARCH FORM -->
+<form class="mb-3" method="GET" action="/projects">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Cari proyek, pelanggan, atau account manager..." value="<%= typeof search !== 'undefined' ? search : '' %>">
+        <button class="btn btn-outline-secondary" type="submit">Cari</button>
+    </div>
+</form>
+
 <!-- TABEL TANPA FORM PENCARIAN -->
 <table class="table table-striped table-hover align-middle">
     <thead>
@@ -67,7 +75,7 @@
     <ul class="pagination justify-content-center">
         <% if (currentPage > 1) { %>
             <li class="page-item">
-                <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                <a class="page-link" href="?page=<%= currentPage - 1 %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %>">Previous</a>
             </li>
         <% } else { %>
             <li class="page-item disabled">
@@ -77,13 +85,13 @@
 
         <% for (let i = 1; i <= totalPages; i++) { %>
             <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
-                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                <a class="page-link" href="?page=<%= i %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %>"><%= i %></a>
             </li>
         <% } %>
 
         <% if (currentPage < totalPages) { %>
             <li class="page-item">
-                <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                <a class="page-link" href="?page=<%= currentPage + 1 %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %>">Next</a>
             </li>
         <% } else { %>
             <li class="page-item disabled">

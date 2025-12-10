@@ -5,6 +5,10 @@ exports.showProjects = async (req, res) => {
   try {
     const loggedInUser = req.session.user;
     let whereClause = {};
+    const { Op } = db.Sequelize;
+
+    // Ambil query search dari URL
+    const search = (req.query.search || '').trim();
 
     // Filter proyek berdasarkan role user yang login
     if (loggedInUser.role === 'sales') {
@@ -15,10 +19,25 @@ exports.showProjects = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
     const offset = (page - 1) * limit;
-    
+    // Jika ada search, gabungkan kondisi pencarian dengan whereClause
+    let finalWhere = whereClause;
+    if (search) {
+      const searchWhere = {
+        [Op.or]: [
+          { projectName: { [Op.like]: `%${search}%` } },
+          { status: { [Op.like]: `%${search}%` } },
+          db.Sequelize.where(db.Sequelize.col('customer.name'), { [Op.like]: `%${search}%` }),
+          db.Sequelize.where(db.Sequelize.col('accountManager.username'), { [Op.like]: `%${search}%` })
+        ]
+      };
+
+      // jika whereClause kosong, pakai searchWhere, kalau tidak gabungkan dengan AND
+      finalWhere = Object.keys(whereClause).length ? { [Op.and]: [whereClause, searchWhere] } : searchWhere;
+    }
+
     // Jalankan query ke database dengan pagination
     const data = await db.Project.findAndCountAll({
-      where: whereClause,
+      where: finalWhere,
       include: [
         { model: db.User, as: 'accountManager', attributes: ['username'] },
         { model: db.Customer, as: 'customer', attributes: ['name'] }
@@ -40,13 +59,14 @@ exports.showProjects = async (req, res) => {
     // --- AKHIR LOGIKA ---
 
     // Kirim semua data ke view
-    res.render('projects/list', { 
-      projects, 
-      currentPage: page, 
-      totalPages, 
+    res.render('projects/list', {
+      projects,
+      currentPage: page,
+      totalPages,
       totalValue, // <-- INI ADALAH YANG PENTING
       totalProjects,
-      user: req.session.user 
+      user: req.session.user,
+      search
     });
   } catch (err) {
     res.status(500).send(err.message);
