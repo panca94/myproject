@@ -111,20 +111,19 @@ exports.showAddProjectForm = async (req, res) => {
     let users = [];
     let customers = [];
 
-    if (loggedInUser.role === 'sales') {
+    if (loggedInUser && String(loggedInUser.role).toLowerCase() === 'sales') {
       users = await db.User.findAll({
         where: { id: loggedInUser.id },
         attributes: ['id', 'username']
       });
+      customers = await db.Customer.findAll({ where: { salesId: loggedInUser.id }, attributes: ['id', 'name', 'salesId'] });
     } else {
       users = await db.User.findAll({ attributes: ['id', 'username'] });
+      customers = await db.Customer.findAll({ attributes: ['id', 'name', 'salesId'] });
     }
-    // Jika user adalah sales, tampilkan hanya customer yang di-assign ke sales tersebut
-    // Ambil salesId juga untuk safety, lalu pastikan filter diterapkan
-    customers = await db.Customer.findAll({ attributes: ['id', 'name', 'salesId'] });
-    if (loggedInUser.role === 'sales') {
-      customers = customers.filter(c => c.salesId === loggedInUser.id);
-    }
+
+    console.log('DEBUG showAddProjectForm - loggedInUser:', loggedInUser);
+    console.log('DEBUG showAddProjectForm - customers.length:', customers.length);
 
     res.render('projects/add', { users, customers, user: req.session.user });
   } catch (err) {
@@ -173,10 +172,15 @@ exports.showEditProjectForm = async (req, res) => {
     const users = await db.User.findAll({ attributes: ['id', 'username'] });
     // pastikan customers yang ditampilkan di edit juga sesuai hak akses sales
     const loggedInUser = req.session.user;
-    let customers = await db.Customer.findAll({ attributes: ['id', 'name', 'salesId'] });
-    if (loggedInUser && loggedInUser.role === 'sales') {
-      customers = customers.filter(c => c.salesId === loggedInUser.id);
+    let customers = [];
+    if (loggedInUser && String(loggedInUser.role).toLowerCase() === 'sales') {
+      customers = await db.Customer.findAll({ where: { salesId: loggedInUser.id }, attributes: ['id', 'name', 'salesId'] });
+    } else {
+      customers = await db.Customer.findAll({ attributes: ['id', 'name', 'salesId'] });
     }
+
+    console.log('DEBUG showEditProjectForm - loggedInUser:', loggedInUser);
+    console.log('DEBUG showEditProjectForm - customers.length:', customers.length);
 
     if (!project) {
       return res.status(404).send('Project not found');

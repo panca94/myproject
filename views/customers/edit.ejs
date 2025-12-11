@@ -1,34 +1,41 @@
 <%- include('../partials/header') %>
 
-<h1>Edit Pelanggan</h1>
+<h1>Edit Customer</h1>
 
 <form action="/customers/edit/<%= customer.id %>?_method=PUT" method="POST">
 
     <div class="mb-3">
-        <label>Nama</label>
-        <input type="text" class="form-control" name="name" value="<%= customer.name %>" required>
+        <label class="form-label">Name</label>
+        <input type="text" name="name" class="form-control" value="<%= customer.name %>" required>
     </div>
 
     <div class="mb-3">
-        <label>Alamat</label>
-        <input type="text" class="form-control" name="address" value="<%= customer.address %>">
+        <label>Address</label>
+        <input type="text" name="address" class="form-control" value="<%= customer.address %>">
     </div>
 
     <div class="mb-3">
         <label>Email</label>
-        <input type="email" class="form-control" name="email" value="<%= customer.email %>">
+        <input type="email" name="email" class="form-control" value="<%= customer.email %>">
     </div>
 
     <div class="mb-3">
         <label>Phone</label>
-        <input type="text" class="form-control" name="phone" value="<%= customer.phone %>">
+        <input type="text" name="phone" class="form-control" value="<%= customer.phone %>">
+    </div>
+
+    <div class="mb-3">
+        <label>Contact</label>
+        <input type="text" name="contact" class="form-control" value="<%= customer.contact %>">
     </div>
 
     <div class="mb-3">
         <label>Sales</label>
-        <select class="form-control" name="userId">
+        <select name="salesId" class="form-control">
+            <option value="">- pilih -</option>
+
             <% users.forEach(u => { %>
-                <option value="<%= u.id %>" <%= customer.userId === u.id ? 'selected' : '' %>>
+                <option value="<%= u.id %>" <%= customer.salesId === u.id ? 'selected' : '' %>>
                     <%= u.username %>
                 </option>
             <% }) %>
@@ -36,11 +43,12 @@
     </div>
 
     <div class="mb-3">
-        <label>Keterangan</label>
-        <textarea class="form-control" name="description"><%= customer.description %></textarea>
+        <label>Note</label>
+        <textarea name="note" class="form-control"><%= customer.note %></textarea>
     </div>
 
-    <button class="btn btn-primary">Update</button>
+    <button class="btn btn-primary">Save</button>
+    <a href="/customers" class="btn btn-secondary">Cancel</a    >
 </form>
 
 <%- include('../partials/footer') %>

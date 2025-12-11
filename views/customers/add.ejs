@@ -1,39 +1,51 @@
 <%- include('../partials/header') %>
 
-<h1>Tambah Pelanggan</h1>
+<h1>Add Customer</h1>
 
 <form action="/customers/add" method="POST">
-    
+
     <div class="mb-3">
-        <label>Nama Pelanggan</label>
-        <input type="text" name="name" class="form-control" required>
+        <label>Name</label>
+        <input type="text" name="name" class="form-control">
     </div>
 
     <div class="mb-3">
-        <label>Alamat</label>
+        <label>Address</label>
         <input type="text" name="address" class="form-control">
     </div>
 
     <div class="mb-3">
-        <label>No Telpon</label>
+        <label>Email</label>
+        <input type="email" name="email" class="form-control">
+    </div>
+
+    <div class="mb-3">
+        <label>Phone</label>
         <input type="text" name="phone" class="form-control">
     </div>
 
     <div class="mb-3">
-        <label>Keterangan</label>
-        <textarea name="description" class="form-control"></textarea>
+        <label>Contact</label>
+        <input type="text" name="contact" class="form-control">
     </div>
 
     <div class="mb-3">
         <label>Sales</label>
-        <select name="userId" class="form-control" required>
+        <select name="salesId" class="form-control">
+            <option value="">- pilih -</option>
             <% users.forEach(u => { %>
                 <option value="<%= u.id %>"><%= u.username %></option>
             <% }) %>
         </select>
     </div>
 
-    <button type="submit" class="btn btn-success">Simpan</button>
+    <div class="mb-3">
+        <label>Note</label>
+        <textarea name="note" class="form-control"></textarea>
+    </div>
+
+    <button class="btn btn-success">Save</button>
+    <a href="/customers" class="btn btn-secondary">Cancel</a>
 </form>
 
 <%- include('../partials/footer') %>

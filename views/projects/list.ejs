@@ -1,15 +1,17 @@
 <%- include('../partials/header') %>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>Daftar Proyek</h1>
-    <a href="/projects/add" class="btn btn-success">+ Tambah Proyek</a>
+    <h1>Project List</h1>
+    <a href="/projects/add" class="btn btn-success">+ Add Project</a>
 </div>
+
+
 
 <!-- SEARCH FORM -->
 <form class="mb-3" method="GET" action="/projects">
-    <div class="input-group">
+      <div class="input-group" style="max-width:480px;">
         <input type="text" name="search" class="form-control" placeholder="Cari proyek, pelanggan, atau account manager..." value="<%= typeof search !== 'undefined' ? search : '' %>">
-        <button class="btn btn-outline-secondary" type="submit">Cari</button>
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
     </div>
 </form>
 
@@ -18,15 +20,15 @@
     <thead>
         <tr>
             <th>No</th>
-            <th>Tanggal</th>
-            <th>Nama Proyek</th>
-            <th>Pelanggan</th>
-            <th>Account Manager</th>
-            <th>Nilai Proyek</th>
+            <th>Date</th>
+            <th>Project Name</th>
+            <th>Customer</th>
+            <th>User Account</th>
+            <th>Project Value</th>
             <th>Status</th>
             <th>Update</th>
             <th>Challenge</th>
-            <th>Aksi</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -56,14 +58,14 @@
             <% }) %>
         <% } else { %>
             <tr>
-                <td colspan="11" class="text-center">Tidak ada data proyek yang ditemukan.</td>
+                <td colspan="11" class="text-center">No projects found.</td>
             </tr>
         <% } %>
     </tbody>
     <!-- TABEL FOOTER UNTUK TOTAL NILAI -->
     <tfoot class="table-light fw-bold">
         <tr>
-            <td colspan="5" class="text-end">TOTAL NILAI PROYEK</td>
+            <td colspan="5" class="text-end">TOTAL PROJECT VALUE</td>
             <td>Rp <%= totalValue.toLocaleString('id-ID') %></td>
             <td colspan="5"></td>
         </tr>
@@ -100,5 +102,25 @@
         <% } %>
     </ul>
 </nav>
+
+<!-- TOP 5 SALES -->
+<% if (user && (user.role === 'admin' || user.role === 'manager')) { %>
+<div class="mb-3">
+    <h5>Top 5 Sales (by Won project value)</h5>
+    <ul class="list-group list-group-horizontal">
+        <% if (typeof topSales !== 'undefined' && topSales.length > 0) { %>
+            <% topSales.forEach(s => { %>
+                <li class="list-group-item">
+                    <strong><%= s.username %></strong>
+                    <div class="small text-muted">Rp <%= Number(s.totalValue || 0).toLocaleString('id-ID') %></div>
+                    <div class="small text-muted">Won: <%= s.wonCount || 0 %> project(s)</div>
+                </li>
+            <% }) %>
+        <% } else { %>
+            <li class="list-group-item">No data</li>
+        <% } %>
+    </ul>
+</div>
+<% } %>
 
 <%- include('../partials/footer') %>

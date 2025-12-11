@@ -1,26 +1,40 @@
 <%- include('../partials/header') %>
 
-<h1>Daftar Pelanggan</h1>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Customer List</h1>
+    <a href="/customers/add" class="btn btn-success">Add Customer</a>
+</div>
+
+<!-- SEARCH FORM -->
+<form class="mb-3" method="GET" action="/customers">
+  <div class="input-group" style="max-width:480px;">
+    <input type="text" name="search" class="form-control" placeholder="Search by name, email, phone, address, or sales..." value="<%= typeof search !== 'undefined' ? search : '' %>">
+    <button class="btn btn-outline-secondary" type="submit">Search</button>
+  </div>
+</form>
 
 <table class="table table-bordered">
   <thead>
     <tr>
-      <th>ID</th>
-      <th>Nama</th>
-      <th>Alamat</th>
+      <!-- <th>ID</th> -->
+      <th>Name</th>
+      <th>Contact</th>
+      <th>Address</th>
       <th>Email</th>
       <th>Phone</th>
       <th>Sales</th>
-      <th>Keterangan</th>
-      <th>Aksi</th>
+      <th>Description</th>
+      <th>Actions</th>
     </tr>
   </thead>
 
   <tbody>
     <% customers.forEach(c => { %>
       <tr>
-        <td><%= c.id %></td>
+        <!-- <td><%= c.id %></td> -->
         <td><%= c.name %></td>
+        <td><%= c.contact || '-' %></td>
         <td><%= c.address %></td>
         <td><%= c.email %></td>
         <td><%= c.phone %></td>
@@ -44,7 +58,7 @@
 
         <% if (currentPage > 1) { %>
             <li class="page-item">
-                <a class="page-link" href="/customers?page=<%= currentPage - 1 %>">Previous</a>
+              <a class="page-link" href="/customers?page=<%= currentPage - 1 %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %>">Previous</a>
             </li>
         <% } else { %>
             <li class="page-item disabled">
@@ -53,15 +67,15 @@
         <% } %>
 
         <% for (let i = 1; i <= totalPages; i++) { %>
-            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                <a class="page-link" href="/customers?page=<%= i %>"><%= i %></a>
-            </li>
+          <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+            <a class="page-link" href="/customers?page=<%= i %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %>"><%= i %></a>
+          </li>
         <% } %>
 
         <% if (currentPage < totalPages) { %>
-            <li class="page-item">
-                <a class="page-link" href="/customers?page=<%= currentPage + 1 %>">Next</a>
-            </li>
+          <li class="page-item">
+            <a class="page-link" href="/customers?page=<%= currentPage + 1 %><% if (search) { %>&search=<%= encodeURIComponent(search) %><% } %>">Next</a>
+          </li>
         <% } else { %>
             <li class="page-item disabled">
                 <span class="page-link">Next</span>

@@ -1,8 +1,8 @@
 <%- include('../partials/header') %>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>Manajemen Pengguna</h1>
-    <a href="/users/add" class="btn btn-primary">+ Tambah Pengguna</a>
+    <h1>Manage Users</h1>
+    <a href="/users/add" class="btn btn-primary">+ Add User</a>
 </div>
 
 <table class="table table-striped table-hover">
@@ -31,7 +31,7 @@
             <% }) %>
         <% } else { %>
             <tr>
-                <td colspan="4" class="text-center">Belum ada data pengguna.</td>
+                <td colspan="4" class="text-center">No users found.</td>
             </tr>
         <% } %>
     </tbody>
