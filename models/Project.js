@@ -17,14 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       defaultValue: 'On Progress'
     },
-    update_status: {
-      type: DataTypes.ENUM('Proposal Submit', 'Eng Calculate', 'Won'),
-      allowNull: true
-    },
-    challenge: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
+    
     customerId: {
       type: DataTypes.INTEGER,
       allowNull: false
@@ -38,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
   Project.associate = (models) => {
     Project.belongsTo(models.User, { foreignKey: 'userId', as: 'accountManager' });
     Project.belongsTo(models.Customer, { foreignKey: 'customerId', as: 'customer' });
+    Project.hasMany(models.ProjectComment, { foreignKey: 'projectId', as: 'comments' });
   };
 
   return Project;

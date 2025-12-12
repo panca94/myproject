@@ -91,5 +91,12 @@ module.exports = {
   isAuthenticated,
   isAdmin,
   isOwner,
-  isCustomerOwner
+  isCustomerOwner,
+  // Admin atau Manager checker
+  isAdminOrManager: function (req, res, next) {
+    if (req.session.user && (req.session.user.role === 'admin' || req.session.user.role === 'manager')) {
+      return next();
+    }
+    res.status(403).send('Forbidden: You do not have permission to access this page.');
+  }
 };

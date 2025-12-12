@@ -37,6 +37,7 @@ exports.list = async (req, res) => {
       currentPage: page,
       totalPages,
       search,
+      user: req.session.user
     });
   } catch (err) {
     res.status(500).send(err.message);
@@ -45,7 +46,7 @@ exports.list = async (req, res) => {
 
 exports.addForm = async (req, res) => {
   const users = await User.findAll();
-  res.render('customers/add', { users });
+  res.render('customers/add', { users, user: req.session.user });
 };
 
 exports.add = async (req, res) => {
@@ -56,7 +57,7 @@ exports.add = async (req, res) => {
 exports.editForm = async (req, res) => {
   const customer = await Customer.findByPk(req.params.id);
   const users = await User.findAll();
-  res.render('customers/edit', { customer, users });
+  res.render('customers/edit', { customer, users, user: req.session.user });
 };
 
 exports.update = async (req, res) => {

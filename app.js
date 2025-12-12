@@ -24,6 +24,12 @@ app.use(session({
   saveUninitialized: false,
 }));
 
+// Make `user` available in all views (avoid undefined variable in EJS)
+app.use((req, res, next) => {
+  res.locals.user = req.session ? req.session.user : null;
+  next();
+});
+
 // View engine
 app.set('view engine', 'ejs');
 

@@ -25,9 +25,7 @@ exports.showProjects = async (req, res) => {
       const searchWhere = {
         [Op.or]: [
           { projectName: { [Op.like]: `%${search}%` } },
-          { status: { [Op.like]: `%${search}%` } },
-          { update_status: { [Op.like]: `%${search}%` } },
-          { challenge: { [Op.like]: `%${search}%` } },    
+          { status: { [Op.like]: `%${search}%` } },    
           db.Sequelize.where(db.Sequelize.col('customer.name'), { [Op.like]: `%${search}%` }),
           db.Sequelize.where(db.Sequelize.col('accountManager.username'), { [Op.like]: `%${search}%` })
         ]
@@ -154,6 +152,10 @@ exports.addProject = async (req, res) => {
       req.body.userId = loggedInUser.id;
     }
 
+    // Remove deprecated fields if present
+    delete req.body.update_status;
+    delete req.body.challenge;
+
     await db.Project.create(req.body);
     res.redirect('/projects');
   } catch (err) {
@@ -213,6 +215,10 @@ exports.updateProject = async (req, res) => {
       // pastikan userId tetap ID yang login
       req.body.userId = loggedInUser.id;
     }
+
+    // Remove deprecated fields if present
+    delete req.body.update_status;
+    delete req.body.challenge;
 
     await db.Project.update(req.body, {
       where: { id: req.params.id }
