@@ -55,28 +55,21 @@
     <div class="mb-3">
         <label for="status" class="form-label">Status</label>
         <select class="form-select" id="status" name="status">
+            <option value="Company Profile Presentation">Company Profile Presentation</option>
+            <option value="Onsite Survey">Onsite Survey</option>
+            <option value="Engineering Calculate">Engineering Calculate</option>
+            <option value="Proposal Submit">Proposal Submit</option>
             <option value="Budgeting">Budgeting</option>
-            <option value="On Progress" selected>On Progress</option>
+            <option value="Bidding">Bidding</option>
+            <option value="Negotiation">Negotiation</option>
             <option value="Won">Won</option>
             <option value="Lost">Lost</option>
+            <option value="Hold">Hold</option>
             <option value="Re-Tender">Re-Tender</option>
+            <option value="On Progress" selected>On Progress</option>
         </select>
     </div>
-
-    <div class="mb-3">
-        <label for="update_status" class="form-label">Update</label>
-        <select class="form-select" id="update_status" name="update_status">
-            <option value="">-- Select Update Status --</option>
-            <option value="Proposal Submit">Proposal Submit</option>
-            <option value="Eng Calculate">Eng Calculate</option>
-            <option value="Won">Won</option>
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label for="challenge" class="form-label">Challenge</label>
-        <textarea class="form-control" id="challenge" name="challenge" rows="3"></textarea>
-    </div>
+    
 
     <button type="submit" class="btn btn-success">Save</button>
     <a href="/projects" class="btn btn-secondary">Cancel</a>

@@ -33,3 +33,11 @@
         </div>
     </nav>
     <div class="container mt-4">
+                <% if (flash) { %>
+                    <div class="container mt-2">
+                        <div class="alert alert-<%= flash.type === 'error' ? 'danger' : flash.type || 'info' %> alert-dismissible fade show" role="alert">
+                            <%= flash.message %>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                <% } %>

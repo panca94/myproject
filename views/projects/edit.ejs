@@ -42,26 +42,21 @@
     <div class="mb-3">
         <label for="status" class="form-label">Status</label>
         <select class="form-select" id="status" name="status">
+            <option value="Company Profile Presentation" <%= (project.status === 'Company Profile Presentation') ? 'selected' : '' %>>Company Profile Presentation</option>
+            <option value="Onsite Survey" <%= (project.status === 'Onsite Survey') ? 'selected' : '' %>>Onsite Survey</option>
+            <option value="Engineering Calculate" <%= (project.status === 'Engineering Calculate') ? 'selected' : '' %>>Engineering Calculate</option>
+            <option value="Proposal Submit" <%= (project.status === 'Proposal Submit') ? 'selected' : '' %>>Proposal Submit</option>
             <option value="Budgeting" <%= (project.status === 'Budgeting') ? 'selected' : '' %>>Budgeting</option>
-            <option value="On Progress" <%= (project.status === 'On Progress') ? 'selected' : '' %>>On Progress</option>
+            <option value="Bidding" <%= (project.status === 'Bidding') ? 'selected' : '' %>>Bidding</option>
+            <option value="Negotiation" <%= (project.status === 'Negotiation') ? 'selected' : '' %>>Negotiation</option>
             <option value="Won" <%= (project.status === 'Won') ? 'selected' : '' %>>Won</option>
             <option value="Lost" <%= (project.status === 'Lost') ? 'selected' : '' %>>Lost</option>
+            <option value="Hold" <%= (project.status === 'Hold') ? 'selected' : '' %>>Hold</option>
             <option value="Re-Tender" <%= (project.status === 'Re-Tender') ? 'selected' : '' %>>Re-Tender</option>
+            <option value="On Progress" <%= (project.status === 'On Progress') ? 'selected' : '' %>>On Progress</option>
         </select>
     </div>
-    <div class="mb-3">
-        <label for="update_status" class="form-label">Update</label>
-        <select class="form-select" id="update_status" name="update_status">
-            <option value="">-- Select Update Status --</option>
-            <option value="Proposal Submit" <%= (project.update_status === 'Proposal Submit') ? 'selected' : '' %>>Proposal Submit</option>
-            <option value="Eng Calculate" <%= (project.update_status === 'Eng Calculate') ? 'selected' : '' %>>Eng Calculate</option>
-            <option value="Won" <%= (project.update_status === 'Won') ? 'selected' : '' %>>Won</option>
-        </select>
-    </div>
-    <div class="mb-3">
-        <label for="challenge" class="form-label">Challenge</label>
-        <textarea class="form-control" id="challenge" name="challenge" rows="3"><%= project.challenge %></textarea>
-    </div>
+    
     <button type="submit" class="btn btn-success">Update</button>
     <a href="/projects" class="btn btn-secondary">Cancel</a>
 </form>

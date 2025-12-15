@@ -26,8 +26,6 @@
             <th>User Account</th>
             <th>Project Value</th>
             <th>Status</th>
-            <th>Update</th>
-            <th>Challenge</th>
             <th>Action</th>
         </tr>
     </thead>
@@ -42,13 +40,12 @@
                     <td><%= project.accountManager ? project.accountManager.username : 'N/A' %></td>
                     <td>Rp <%= project.amount.toLocaleString('id-ID') %></td>
                     <td><%= project.status || '-' %></td>
-                    <td><%= project.update_status || '-' %></td>
-                    <td><%= project.challenge || '-' %></td>
                     <td>
+                        <a href="/projects/details/<%= project.id %>" class="btn btn-sm btn-info">Details</a>
                         <% if (user.role === 'admin' || user.role === 'manager' || (user.role === 'sales' && project.userId === user.id)) { %>
                             <a href="/projects/edit/<%= project.id %>" class="btn btn-sm btn-warning">Edit</a>
-                            <form action="/projects/delete/<%= project.id %>?_method=DELETE" method="POST" style="display:inline;">
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus proyek ini?')">Hapus</button>
+                            <form action="/projects/delete/<%= project.id %>?_method=DELETE" method="POST" style="display:inline;" class="need-confirm" data-confirm="Apakah Anda yakin ingin menghapus proyek ini?">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                             </form>
                         <% } else { %>
                             <span class="text-muted">-</span>
@@ -58,7 +55,7 @@
             <% }) %>
         <% } else { %>
             <tr>
-                <td colspan="11" class="text-center">No projects found.</td>
+                <td colspan="8" class="text-center">No projects found.</td>
             </tr>
         <% } %>
     </tbody>
@@ -67,7 +64,7 @@
         <tr>
             <td colspan="5" class="text-end">TOTAL PROJECT VALUE</td>
             <td>Rp <%= totalValue.toLocaleString('id-ID') %></td>
-            <td colspan="5"></td>
+            <td colspan="2"></td>
         </tr>
     </tfoot>
 </table>
@@ -106,7 +103,7 @@
 <!-- TOP 5 SALES -->
 <% if (user && (user.role === 'admin' || user.role === 'manager')) { %>
 <div class="mb-3">
-    <h5>Top 5 Sales (by Won project value)</h5>
+    <h5>Top 7 Sales (by Won project value)</h5>
     <ul class="list-group list-group-horizontal">
         <% if (typeof topSales !== 'undefined' && topSales.length > 0) { %>
             <% topSales.forEach(s => { %>

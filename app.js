@@ -30,6 +30,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// Simple flash middleware (uses session)
+app.use((req, res, next) => {
+  if (req.session && req.session.flash) {
+    res.locals.flash = req.session.flash;
+    delete req.session.flash;
+  } else {
+    res.locals.flash = null;
+  }
+  next();
+});
+
 // View engine
 app.set('view engine', 'ejs');
 

@@ -23,9 +23,9 @@
                     <td><span class="badge bg-info text-dark"><%= user.role %></span></td>
                     <td>
                         <a href="/users/edit/<%= user.id %>" class="btn btn-sm btn-warning">Edit</a>
-                        <form action="/users/delete/<%= user.id %>?_method=DELETE" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin?')">Hapus</button>
-                        </form>
+                        <form action="/users/delete/<%= user.id %>?_method=DELETE" method="POST" style="display:inline;" class="need-confirm" data-confirm="Apakah Anda yakin ingin menghapus user ini?">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
                     </td>
                 </tr>
             <% }) %>

@@ -73,7 +73,7 @@ exports.showProjects = async (req, res) => {
         ],
         group: ['userId'],
         order: [[db.Sequelize.literal('totalValue'), 'DESC']],
-        limit: 5,
+        limit: 7,
         include: [{ model: db.User, as: 'accountManager', attributes: ['id', 'username'] }]
       });
 
@@ -157,6 +157,7 @@ exports.addProject = async (req, res) => {
     delete req.body.challenge;
 
     await db.Project.create(req.body);
+    req.session.flash = { type: 'success', message: 'Project berhasil ditambahkan.' };
     res.redirect('/projects');
   } catch (err) {
     res.status(500).send(err.message);
@@ -223,6 +224,7 @@ exports.updateProject = async (req, res) => {
     await db.Project.update(req.body, {
       where: { id: req.params.id }
     });
+    req.session.flash = { type: 'success', message: 'Project berhasil diupdate.' };
     res.redirect('/projects');
   } catch (err) {
     res.status(500).send(err.message);
@@ -234,6 +236,7 @@ exports.deleteProject = async (req, res) => {
     await db.Project.destroy({
       where: { id: req.params.id }
     });
+    req.session.flash = { type: 'success', message: 'Project berhasil dihapus.' };
     res.redirect('/projects');
   } catch (err) {
     res.status(500).send(err.message);

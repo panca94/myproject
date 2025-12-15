@@ -41,6 +41,7 @@ const projectCommentController = {
         userId
       });
 
+      req.session.flash = { type: 'success', message: 'Komentar berhasil ditambahkan.' };
       res.redirect(`/projects/details/${projectId}`);
     } catch (err) {
       res.status(500).send(err.message);
@@ -65,6 +66,7 @@ const projectCommentController = {
       }
 
       await comment.destroy();
+      req.session.flash = { type: 'success', message: 'Komentar berhasil dihapus.' };
       res.redirect(`/projects/details/${projectId}`);
     } catch (err) {
       res.status(500).send(err.message);

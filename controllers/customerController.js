@@ -51,6 +51,7 @@ exports.addForm = async (req, res) => {
 
 exports.add = async (req, res) => {
   await Customer.create(req.body);
+  req.session.flash = { type: 'success', message: 'Customer berhasil ditambahkan.' };
   res.redirect('/customers');
 };
 
@@ -62,10 +63,12 @@ exports.editForm = async (req, res) => {
 
 exports.update = async (req, res) => {
   await Customer.update(req.body, { where: { id: req.params.id } });
+  req.session.flash = { type: 'success', message: 'Customer berhasil diupdate.' };
   res.redirect('/customers');
 };
 
 exports.delete = async (req, res) => {
   await Customer.destroy({ where: { id: req.params.id } });
+  req.session.flash = { type: 'success', message: 'Customer berhasil dihapus.' };
   res.redirect('/customers');
 };

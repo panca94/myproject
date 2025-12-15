@@ -13,7 +13,20 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0
     },
     status: {
-      type: DataTypes.ENUM('Budgeting', 'Won', 'On Progress', 'Lost', 'Re-Tender'),
+      type: DataTypes.ENUM(
+        'Company Profile Presentation',
+        'Onsite Survey',
+        'Engineering Calculate',
+        'Proposal Submit',
+        'Budgeting',
+        'Bidding',
+        'Negotiation',
+        'Won',
+        'Lost',
+        'Hold',
+        'Re-Tender',
+        'On Progress'
+      ),
       allowNull: true,
       defaultValue: 'On Progress'
     },
